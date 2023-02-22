@@ -8,6 +8,8 @@ import "react-big-calendar/lib/css/react-big-calendar.css";
 import React, { useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css"
+// import { Login } from "./Login";
+// import { Register } from "./Register";
 
 
 const locales = {
