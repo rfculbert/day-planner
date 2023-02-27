@@ -5,11 +5,11 @@ import parse from "date-fns/parse";
 import startOfWeek from "date-fns/startOfWeek";
 import getDay from "date-fns/getDay"
 import "react-big-calendar/lib/css/react-big-calendar.css";
-import React, { useState } from "react";
+import React, { useState, Fragment, useEffect } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css"
-// import { Login } from "./Login";
-// import { Register } from "./Register";
+import LogRegi from './components/loginRegi';
+import axios from "axios";
 
 
 const locales = {
@@ -23,35 +23,46 @@ const localizer = dateFnsLocalizer({
   locales
 })
 
-const events = [
-  {
-    title: "Big Meeting",
-    allDay:true,
-    start: new Date(2023,1,1),
-    end: new Date(2023,1,5)
-  },
-  {
-    title: "Vacation",
-    start: new Date(2023,1,10),
-    end: new Date(2023,1,12)
-  },
-  {
-    title: "conference",
-    start: new Date(2023,1,20),
-    end: new Date(2023,1,28)
-  }
-]
 
 
 function App(){
   const [newEvent, setNewEvent] = useState({title: "", start: "", end: ""})
-  const [allEvents, setAllEvents] = useState(events)
+  const [allEvents, setAllEvents] = useState([])
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userId, setUserId] = useState("")
+  useEffect(() => {
+    if (userId) {
+      axios.get(`/api/events/${userId}`).then(res => {
+      console.log(res.data)
+      setAllEvents(res.data.map(event => {
+        return {
+          ...event,
+          start: new Date(event.start_date),
+          end: new Date(event.end_date)
+        }
+      }))
+    })
+  }
+  }, [userId])
 
+  function handleLogoutEvent() {
+    setUserId('')
+    setIsLoggedIn('')
+  }
   function handleAddEvent() {
-    setAllEvents([...allEvents, newEvent])
+    axios.post("/api/events",{...newEvent, userId}).then(res => {
+      console.log(res.data)
+      setAllEvents(res.data.map(event => {
+        return {
+          ...event,
+          start: new Date(event.start_date),
+          end: new Date(event.end_date)
+        }
+      }))
+    })
   }
 
-  return (
+  return !isLoggedIn? <LogRegi setIsLoggedIn={setIsLoggedIn} setUserId={setUserId} />:(
     <div className="App">
       <h1>Calendar</h1>
       <h2>Add New Event</h2>
@@ -65,6 +76,9 @@ function App(){
         selected={newEvent.end} onChange={(end) => setNewEvent({...newEvent, end: end})} />
         <button style={{marginTop: "10px"}} onClick={handleAddEvent}>
           Add Event
+        </button>
+        <button style={{marginTop: "10px"}} onClick={handleLogoutEvent}>
+          Log Out
         </button>
       </div>
 

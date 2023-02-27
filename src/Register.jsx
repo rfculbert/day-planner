@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import axios from "axios";
 
 export const Register = (props) => {
     const [email, setEmail] = useState('');
@@ -8,8 +9,15 @@ export const Register = (props) => {
     const handleSubmit = (e) => {
         e.preventDefault();
         console.log(email);
+        axios.post("/api/register", {username: name, pass}).then(res => {
+            console.log(res.data)
+            props.setUserId(res.data.user_id)
+            props.setIsLoggedIn(true);
+        }).catch(err => {
+            console.log(err)
+        })
     }
-
+console.log(props)
     return (
         <div className="auth-form-container">
             <h2>Register</h2>
